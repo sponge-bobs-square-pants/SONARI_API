@@ -57,6 +57,7 @@ const getAllProducts = async (req, res) => {
     // console.log(data);
     return res.status(200).json({data, nbHits: data.length});
     }
+    
 
 module.exports = {
     getAllProductsStatic,
