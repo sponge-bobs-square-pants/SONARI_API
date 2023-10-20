@@ -11,7 +11,7 @@ const getRazerPayDataController = async (req, res) => {
     try {
         const productRequests = data.cart.map(async (item) => {
             const itemId = item.id.replace(/[^0-9]/g, '');
-            const productResponse = await axios.get(`http://localhost:5000/api/v1/products/${itemId}`);
+            const productResponse = await axios.get(`https://sonari-api.onrender.com/api/v1/products/${itemId}`);
             const productData = productResponse.data;
             // console.log(item.amount, productData.product.Price);
             let itemTotalAmount = item.amount * productData.product.Price;
