@@ -4,7 +4,10 @@ require('dotenv').config()
 const axios = require('axios')
 const shortid = require('shortid')
 const razorpay = new Razorpay({ key_id:process.env.RAZOR_PAY_ID, key_secret:process.env.RAZOR_PAY_SECRET })
+const crypto = require('crypto')
+const FormEntry = require('../FormEntry');
 let razorpayTotalAmount = 0;
+
 const getRazerPayDataController = async (req, res) => {
     const data = req.body;
     let totalAmount = 0;
@@ -55,8 +58,40 @@ const getRazerPayController = async (req, res) => {
         })
    
 }
+const backendVerification = async (req, res) => {
+    const SECRET = process.env.RAZOR_BACKEND_SECRET
+    const {payload} = req.body
+    // console.log(payload.payment.entity.order_id);
+    const orderId = payload.payment.entity.order_id;
+ 
+    const shasum = crypto.createHmac('sha256', SECRET)
+    shasum.update(JSON.stringify(req.body))
+    const digest = shasum.digest('hex')
+
+    if(digest === req.headers['x-razorpay-signature']){
+        // console.log('request is legit.do your shit here');
+        try {
+            const result = await FormEntry.findOneAndUpdate(
+                {orderID:orderId},
+                {$set: {isPaymentSuccessful: true}}
+            );
+            if(result){
+               return res.json({status: 'ok'})
+            }else{
+                return res.status(404).json({error: 'Document not found'})
+            }
+        } catch (error) {
+            return res.status(500).json({error: 'An error occurred while updating'})
+        }
+        
+    }else{
+        res.status(400).json({msg: 'u are messing with the wrong person'})
+    }
+    
+}
 
 module.exports = {
     getRazerPayController,
-    getRazerPayDataController
+    getRazerPayDataController,
+    backendVerification
 }

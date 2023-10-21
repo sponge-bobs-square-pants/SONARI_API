@@ -20,6 +20,10 @@ const formEntrySchema = new mongoose.Schema({
   orderID: String,
   cart:[cartItemSchema],
   isPaymentSuccessful: Boolean,
+  phoneNumber:{
+    type:String,
+    default:'No phone number',
+  }
 });
 
 const FormEntry = mongoose.model('FormEntry', formEntrySchema);
