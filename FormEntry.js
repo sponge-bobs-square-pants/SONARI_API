@@ -10,6 +10,7 @@ const formEntrySchema = new mongoose.Schema({
   city: String,
   amount: String,
   orderID: String,
+  cart:Array,
   isPaymentSuccessful: Boolean,
 });
 
