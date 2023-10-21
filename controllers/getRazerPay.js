@@ -61,7 +61,8 @@ const getRazerPayController = async (req, res) => {
 const backendVerification = async (req, res) => {
     const SECRET = process.env.RAZOR_BACKEND_SECRET
     const {payload} = req.body
-    // console.log(payload.payment.entity.order_id);
+    // console.log(payload.payment.entity.order_id, payload.payment.entity.contact);
+    const contact = payload.payment.entity.contact;
     const orderId = payload.payment.entity.order_id;
  
     const shasum = crypto.createHmac('sha256', SECRET)
@@ -73,7 +74,7 @@ const backendVerification = async (req, res) => {
         try {
             const result = await FormEntry.findOneAndUpdate(
                 {orderID:orderId},
-                {$set: {isPaymentSuccessful: true}}
+                {$set: {isPaymentSuccessful: true, phoneNumber:contact}}
             );
             if(result){
                return res.json({status: 'ok'})
