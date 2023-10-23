@@ -23,7 +23,8 @@ const formEntrySchema = new mongoose.Schema({
   phoneNumber:{
     type:String,
     default:'No phone number',
-  }
+  },
+  userId:String,
 });
 
 const FormEntry = mongoose.model('FormEntry', formEntrySchema);
