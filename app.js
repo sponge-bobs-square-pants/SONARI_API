@@ -5,9 +5,6 @@
     const cors = require('cors');
     const app = express();
 
-    // const Razorpay = require('razorpay')
-    // const shortid = require('shortid')
-
     const notFoundMiddleware = require('./middleware/not-found');
     const errorMiddleware = require('./middleware/error-handler');
     const connectDB = require('./db/connect');
@@ -18,11 +15,11 @@
     const backendPaymentVerification = require('./routes/backendPaymentVerification')
     const formAuthMiddleware = require('./middleware/formAuthMiddleware')
     const formEntryRouter = require('./routes/formEntryRouter');
-    // const backendPaymentVerification = require('./routes/backendPaymentVerification');
+    const OrderRouter = require('./routes/OrderRouter')
+    const FormEntry = require('./FormEntry');
 
-// const FormEntry = require('./FormEntry');
-    // const razorpay = new Razorpay({ key_id:process.env.RAZOR_PAY_ID, key_secret: process.env.RAZOR_PAY_SECRET })
-    //middleware
+
+
 
     app.use(express.json());
     app.use(cors());
@@ -37,6 +34,7 @@
     app.use('/api/v1/razorpay', razorRouter)
     app.use('/api/v1/submitForm',formAuthMiddleware, formEntryRouter);
     app.use('/api/v1/verification', backendPaymentVerification)
+    app.use('/api/v1/Order', OrderRouter)
 
     app.use(notFoundMiddleware);
     app.use(errorMiddleware);

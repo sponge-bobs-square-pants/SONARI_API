@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 
+
 const getAllProductsStatic = async (req, res) => {
     res.status(200).json({msg: `Products testing route`});
  
@@ -57,10 +58,19 @@ const getAllProducts = async (req, res) => {
     // console.log(data);
     return res.status(200).json({data, nbHits: data.length});
     }
+
+const OrderController = async (req, res) => {
+    const FormEntry = require('../FormEntry');
+    const id = req.query.id
+    const product = await FormEntry.find({userId: id})
+    const cartArray = product.filter(product => product.isPaymentSuccessful === true).map(product => product.cart);
+    return res.json({cartArray})
+}
     
 
 module.exports = {
     getAllProductsStatic,
     getAllProducts,
     getSingleProduct,
+    OrderController,
 }

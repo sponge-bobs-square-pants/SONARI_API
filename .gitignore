@@ -2,3 +2,5 @@
 .env
 /products.json
 /cloudinary.js
+# Local Netlify folder
+.netlify

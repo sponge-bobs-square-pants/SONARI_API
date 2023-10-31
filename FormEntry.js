@@ -3,10 +3,12 @@ const mongoose = require('mongoose');
 const cartItemSchema = new mongoose.Schema({
   // Define the fields for each cart item
   name: String,
-  price: Number,
+  Price: Number,
   amount:Number,
   size:String,
-  id:String
+  id:String,
+  image:String,
+  Description:String,
   // Add other fields as needed
 });
 const formEntrySchema = new mongoose.Schema({
