@@ -27,6 +27,10 @@ const formEntrySchema = new mongoose.Schema({
     default:'No phone number',
   },
   userId:String,
+  waybill:{
+    type:String,
+    default:'',
+  }
 });
 
 const FormEntry = mongoose.model('FormEntry', formEntrySchema);

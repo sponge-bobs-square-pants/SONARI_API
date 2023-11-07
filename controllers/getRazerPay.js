@@ -58,6 +58,26 @@ const getRazerPayController = async (req, res) => {
         })
    
 }
+
+const createDelhiveryShipment = async (formDetails) => {
+    const url = `https://staging-express.delhivery.com/waybill/api/bulk/json/?count=1`
+    const config ={
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
+          }
+          
+    }
+    try {
+        const response = await axios.get(url, config);
+        const trackingDetails = response.data;
+        return trackingDetails;
+    } catch (error) {
+        console.error('Delhivery API request error', error);
+        return null;
+    }
+  
+}
 const backendVerification = async (req, res) => {
     const SECRET = process.env.RAZOR_BACKEND_SECRET
     const {payload} = req.body
@@ -77,7 +97,13 @@ const backendVerification = async (req, res) => {
                 {$set: {isPaymentSuccessful: true, phoneNumber:contact}}
             );
             if(result){
-               return res.json({status: 'ok'})
+                const trackingDetails = await createDelhiveryShipment(result);
+                if (trackingDetails){
+                    return res.json({status: 'ok', trackingDetails})
+                }else{
+                    return res.status(500).json({ error: 'Failed to create shipment' });
+                }
+               
             }else{
                 return res.status(404).json({error: 'Document not found'})
             }

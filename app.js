@@ -36,6 +36,13 @@
     app.use('/api/v1/verification', backendPaymentVerification)
     app.use('/api/v1/Order', OrderRouter)
 
+
+    app.get('/api/v1/OrderAdmin', formAuthMiddleware, async (req, res) => {
+        const orders = await FormEntry.find({isPaymentSuccessful: true});
+        const nbHits = orders.length;
+        res.json({orders, nbHits})
+    })
+
     app.use(notFoundMiddleware);
     app.use(errorMiddleware);
 
