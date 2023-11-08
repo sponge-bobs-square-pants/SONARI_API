@@ -69,7 +69,7 @@ const getRazerPayController = async (req, res) => {
      }
      const payload = JSON.stringify(data)
      const payloadMain = Buffer.from(payload).toString('base64');
-     const key = `${process.env.PHONE_PE_KEY}`;
+    //  const key = `${process.env.PHONE_PE_KEY}`;
      const keyIndex = 1;
      const string = payloadMain + '/pg/v1/pay' + key;
      const sha256 = crypto.createHash('sha256').update(string).digest('hex');
@@ -221,7 +221,7 @@ const backendVerification = async (req, res) => {
    const merchantId=req.query.merchantId;
 //    console.log(merchantTransactionId, merchantId,);
    const keyIndex = 1;
-   const key = `${process.env.PHONE_PE_KEY}`;
+//    const key = `${process.env.PHONE_PE_KEY}`;
    const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + key;
    const sha256 = crypto.createHash('sha256').update(string).digest('hex');
    const checksum = sha256 + "###" + keyIndex;
