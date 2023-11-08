@@ -37,18 +37,18 @@ const getRazerPayDataController = async (req, res) => {
     }
 }
 // console.log(totalAmount);
-function generateTransactionID() {
-    const timestamp= Date.now();
-    const RandomNum = Math.floor(Math.random() * 1000000)
-    const MerchantPrefix = 'K';
-    const transactionID = `SONARIONLINE${MerchantPrefix}${timestamp}${RandomNum}`
-    return transactionID
-}
-const transactionID = generateTransactionID();
+// function generateTransactionID() {
+//     const timestamp= Date.now();
+//     const RandomNum = Math.floor(Math.random() * 1000000)
+//     const MerchantPrefix = 'K';
+//     const transactionID = `SONARIONLINE${MerchantPrefix}${timestamp}${RandomNum}`
+//     return transactionID
+// }
+// const transactionID = generateTransactionID();
 const merchantaID=`${process.env.PHONE_PE_MERCHANT_ID}`
 const getRazerPayController = async (req, res) => {
     console.log('hello motto');
-    const {phone,orderID,email,address,pincode,state,city,amount,name, userId} = req.body;
+    const {phone,orderID,email,address,pincode,state,city,amount,name, userId, transactionID} = req.body;
     const finalAmount = parseInt(amount, 10)
     const data = {  
         "merchantId":`${merchantaID}`,
