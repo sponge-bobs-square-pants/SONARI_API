@@ -58,7 +58,7 @@ const getRazerPayController = async (req, res) => {
         "amount":finalAmount,
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
-        "redirectUrl": `https://3527-194-61-40-33.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        "redirectUrl": `https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
         "redirectMode": "POST",
         "callbackUrl": "http://localhost:8888/products",
         // "message":`payment for order ${orderID}`,
