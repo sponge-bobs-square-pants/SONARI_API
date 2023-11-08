@@ -31,8 +31,11 @@
     app.use('/api/v1/products', productsRouter)
     // app.use('/api/v1/razorpayRouter', razorpayRouter)
     app.use('/api/v1/razorpaydata', razorPayDataRouter)
+
     app.use('/api/v1/razorpay', razorRouter)
+
     app.use('/api/v1/submitForm',formAuthMiddleware, formEntryRouter);
+
     app.use('/api/v1/verification', backendPaymentVerification)
     app.use('/api/v1/Order', OrderRouter)
 

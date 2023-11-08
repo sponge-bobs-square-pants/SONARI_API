@@ -3,16 +3,18 @@ const Razorpay = require('razorpay')
 require('dotenv').config()
 const axios = require('axios')
 const shortid = require('shortid')
+const qs = require('qs');
 const razorpay = new Razorpay({ key_id:process.env.RAZOR_PAY_ID, key_secret:process.env.RAZOR_PAY_SECRET })
 const crypto = require('crypto')
 const FormEntry = require('../FormEntry');
+const QueryString = require('qs');
 let razorpayTotalAmount = 0;
 
 const getRazerPayDataController = async (req, res) => {
     const data = req.body;
     let totalAmount = 0;
     try {
-        const productRequests = data.cart.map(async (item) => {
+        const productRequests = data.map(async (item) => {
             const itemId = item.id.replace(/[^0-9]/g, '');
             const productResponse = await axios.get(`https://sonari-api.onrender.com/api/v1/products/${itemId}`);
             const productData = productResponse.data;
@@ -23,11 +25,11 @@ const getRazerPayDataController = async (req, res) => {
         });
         const totalAmounts = await Promise.all(productRequests);
         totalAmount = totalAmounts.reduce((acc, itemTotalAmount) => acc + itemTotalAmount, 0);
-        // console.log('Total Amount:', totalAmount);
-        // getRazerPayController(req, res, totalAmount);
-        razorpayTotalAmount = totalAmount;
-        // console.log(razorpayTotalAmount);
-        res.json({ msg: 'ok' });
+        // razorpayTotalAmount = totalAmount;
+        res.json({
+            amount:`${totalAmount}`,
+            order_id:`order_id_${shortid.generate()}`
+        });
 
     } catch (error) {
         console.error(error);
@@ -35,85 +37,247 @@ const getRazerPayDataController = async (req, res) => {
     }
 }
 // console.log(totalAmount);
+function generateTransactionID() {
+    const timestamp= Date.now();
+    const RandomNum = Math.floor(Math.random() * 1000000)
+    const MerchantPrefix = 'K';
+    const transactionID = `SONARIONLINE${MerchantPrefix}${timestamp}${RandomNum}`
+    return transactionID
+}
+const transactionID = generateTransactionID();
+const merchantaID=`${process.env.PHONE_PE_MERCHANT_ID}`
 const getRazerPayController = async (req, res) => {
-    // console.log(razorpayTotalAmount, 'Max max');
-    const payment_capture = 1;
-    let amount = razorpayTotalAmount * 9 /10; 
-    // console.log(amount, 'This is thr amount');
-    const currency = 'INR';
-    const options = {
-        amount:amount,
-        currency,
-        receipt:`order_id_${shortid.generate()}`,
-        payment_capture,
-    }
-        const response = await razorpay.orders.create(options)
-
-        // console.log(response);
-        // res.status(200).json({msg: 'everything is ok so far'})
-        res.json({
-            order_id:response.id,
-            currency:response.currency,
-            amount:response.amount
-        })
-   
-}
-
-const createDelhiveryShipment = async (formDetails) => {
-    const url = `https://staging-express.delhivery.com/waybill/api/bulk/json/?count=1`
-    const config ={
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
+    console.log('hello motto');
+    const {phone,orderID,email,address,pincode,state,city,amount,name, userId} = req.body;
+    const finalAmount = parseInt(amount, 10)
+    const data = {  
+        "merchantId":`${merchantaID}`,
+        "merchantTransactionId":transactionID,
+        "merchantUserId":`${userId}`,
+        "name":`${name}`,
+        "amount":finalAmount,
+        "merchantOrderId":`${orderID}`,
+        "mobileNumber":`${phone}`,
+        "redirectUrl": `https://3527-194-61-40-33.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        "redirectMode": "POST",
+        "callbackUrl": "http://localhost:8888/products",
+        // "message":`payment for order ${orderID}`,
+        // "email":`${email}`,
+        "paymentInstrument": {
+            "type": "PAY_PAGE"
           }
-          
-    }
-    try {
-        const response = await axios.get(url, config);
-        const trackingDetails = response.data;
-        return trackingDetails;
-    } catch (error) {
-        console.error('Delhivery API request error', error);
-        return null;
-    }
-  
-}
-const backendVerification = async (req, res) => {
-    const SECRET = process.env.RAZOR_BACKEND_SECRET
-    const {payload} = req.body
-    // console.log(payload.payment.entity.order_id, payload.payment.entity.contact);
-    const contact = payload.payment.entity.contact;
-    const orderId = payload.payment.entity.order_id;
- 
-    const shasum = crypto.createHmac('sha256', SECRET)
-    shasum.update(JSON.stringify(req.body))
-    const digest = shasum.digest('hex')
+     }
+     const payload = JSON.stringify(data)
+     const payloadMain = Buffer.from(payload).toString('base64');
+     const key = `${process.env.PHONE_PE_KEY}`;
+     const keyIndex = 1;
+     const string = payloadMain + '/pg/v1/pay' + key;
+     const sha256 = crypto.createHash('sha256').update(string).digest('hex');
+     const checksum = sha256 + '###' + keyIndex
+     
 
-    if(digest === req.headers['x-razorpay-signature']){
-        // console.log('request is legit.do your shit here');
+     const URL = 'https://api.phonepe.com/apis/hermes/pg/v1/pay'
+     const options ={
+        method: 'POST',
+        url: URL,
+        headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-VERIFY': checksum
+        },
+        data:{
+            request:payloadMain
+        }
+     };
+     axios.request(options).then(function(response){
+        // console.log(response.data);
+        return res.status(200).send(response.data.data.instrumentResponse.redirectInfo.url)
+     }).catch(function(error){
+        console.log(error);
+     })
+}
+
+const createDelhiveryShipment = async (formDetails, orderId) => {
+    
+    const fetchWayBills = async () => {
+        const url = `https://staging-express.delhivery.com/waybill/api/bulk/json/?count=1`;
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
+            }
+        }
+
         try {
-            const result = await FormEntry.findOneAndUpdate(
-                {orderID:orderId},
-                {$set: {isPaymentSuccessful: true, phoneNumber:contact}}
+            const response = await axios.get(url, config);
+            const trackingDetails = response.data;
+            // console.log(trackingDetails, formDetails);
+            const trackDetails = await FormEntry.findOneAndUpdate(
+                { orderID: orderId },
+                { $set: { waybill: trackingDetails } }
             );
-            if(result){
-                const trackingDetails = await createDelhiveryShipment(result);
-                if (trackingDetails){
-                    return res.json({status: 'ok', trackingDetails})
-                }else{
-                    return res.status(500).json({ error: 'Failed to create shipment' });
-                }
-               
-            }else{
-                return res.status(404).json({error: 'Document not found'})
+            if (trackDetails) {
+                return trackingDetails;
+            } else {
+                // Handle the case where the document is not found
+                throw new Error('Waybill error: Document not found');
             }
         } catch (error) {
-            return res.status(500).json({error: 'An error occurred while updating'})
+            console.error('Delhivery API request error', error);
+            // Handle and rethrow the error
+            throw error;
         }
-        
-    }else{
-        res.status(400).json({msg: 'u are messing with the wrong person'})
     }
+    // console.log(formDetails);
+    const createShipment = async (trackingDetails) => {
+        const url = 'https://staging-express.delhivery.com/api/cmu/create.json';
+    // const waybill = formDetails.waybill.toString();
+    const createData = {
+        format: "json", 
+        data:  JSON.stringify({
+            "shipments": [
+              {
+                "name": `${formDetails.name}`,
+                "add": `${formDetails.address}`,
+                "pin": `${formDetails.pincode}`,
+                "city": `${formDetails.city}`,
+                "state": `${formDetails.state}`,
+                "country": "India",
+                "phone": "9016528043",
+                "order": `${trackingDetails}`,
+                "payment_mode": "Prepaid",
+                "return_pin": "",
+                "return_city": "",
+                "return_phone": "",
+                "return_add": "",
+                "return_state": "",
+                "return_country": "",
+                "products_desc": `${formDetails.orderID}`,
+                "hsn_code": "",
+                "cod_amount": "0",
+                "order_date": null,
+                "total_amount": `${formDetails.amount}`,
+                "seller_add": "",
+                "seller_name": "",
+                "seller_inv": "",
+                "quantity": "",
+                "waybill": `${trackingDetails}`,
+                "shipment_width": "",
+                "shipment_height": "",
+                "weight": "500",
+                "seller_gst_tin": "24AHZPC4690G1Z0",
+                "shipping_mode": "Surface",
+                "address_type": "home"
+              }
+            ],
+            "pickup_location": {
+              "name": "KRISHNA SURFACE",
+              "add": "SONARI NIGHT WEAR SNEH SUDHA COMPLEX MUSIC COLLEGE ROAD OPP SURSAGAR LAKE DANDIABAZAR",
+              "city": "Vadodara",
+              "pin_code": 390001,
+              "country": "India",
+              "phone": "9427542349"
+            }
+          })
+    };
+    const formData = qs.stringify(createData);
+    const headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
+        }
+
+          try {
+            const response = await axios.post(url, formData, { headers });
+            return response.data
+            console.log('Response:', response.data);
+            return response.data
+          } catch (error) {
+            console.error('Error:', error);
+
+          }
+    }
+
+
+    try {
+        const trackingDetails = await fetchWayBills();
+        console.log(trackingDetails);
+        const createShipmentData = await createShipment(trackingDetails);
+        console.log(createShipmentData);
+        return trackingDetails;
+    } catch (error) {
+        // Handle the error and return an appropriate response
+        return { error: error.message };
+    }
+
+}
+
+
+const backendVerification = async (req, res) => {
+    // console.log('hello motto 2');
+    // console.log(req.query, 'This is what u want');
+   const merchantTransactionId=req.query.transactionId;
+
+   const merchantId=req.query.merchantId;
+//    console.log(merchantTransactionId, merchantId,);
+   const keyIndex = 1;
+   const key = `${process.env.PHONE_PE_KEY}`;
+   const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + key;
+   const sha256 = crypto.createHash('sha256').update(string).digest('hex');
+   const checksum = sha256 + "###" + keyIndex;
+   const URL = `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`
+   const options ={
+    method:'GET',
+    url:URL,
+    headers:{
+        accept: 'application/json',
+        'Content-Type':'application/json',
+        'X-VERIFY':checksum,
+        'X-MERCHANT-ID': `${merchantId}`
+    }
+    
+   }
+   axios.request(options).then(async(response) => {
+    console.log(response.data);
+   }).catch((error) => {
+    console.log(error);
+   })
+    // const SECRET = process.env.RAZOR_BACKEND_SECRET
+    // const {payload} = req.body
+    // // console.log(payload.payment.entity.order_id, payload.payment.entity.contact);
+    // // const contact = payload.payment.entity.contact;
+    // const orderId = payload.payment.entity.order_id;
+ 
+    // const shasum = crypto.createHmac('sha256', SECRET)
+    // shasum.update(JSON.stringify(req.body))
+    // const digest = shasum.digest('hex')
+
+    // if(digest === req.headers['x-razorpay-signature']){
+    //     // console.log('request is legit.do your shit here');
+    //     try {
+    //         const result = await FormEntry.findOneAndUpdate(
+    //             {orderID:orderId},
+    //             {$set: {isPaymentSuccessful: true}}
+    //         );
+ 
+    //         if(result){
+    //             const trackingDetails = await createDelhiveryShipment(result, orderId);
+    //             if (trackingDetails){
+    //                 return res.json({status: 'ok', trackingDetails})
+    //             }else{
+    //                 return res.status(500).json({ error: 'Failed to create shipment' });
+    //             }
+               
+    //         }else{
+    //             return res.status(404).json({error: 'Document not found'})
+    //         }
+    //     } catch (error) {
+    //         return res.status(500).json({error: 'An error occurred while updating'})
+    //     }
+        
+    // }else{
+    //     res.status(400).json({msg: 'u are messing with the wrong person'})
+    // }
     
 }
 

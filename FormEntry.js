@@ -28,8 +28,8 @@ const formEntrySchema = new mongoose.Schema({
   },
   userId:String,
   waybill:{
-    type:String,
-    default:'',
+    type:Number,
+    default:1,
   }
 });
 

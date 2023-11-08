@@ -3,7 +3,7 @@ const FormEntry = require('../FormEntry');
 const formDataEntry = async (req, res) => {
     try {
       const formData = req.body;
-      // console.log(req.body.cart);
+      // console.log(req.body);
       const formEntry = new FormEntry(formData);
       await formEntry.save();
   
