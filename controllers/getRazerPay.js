@@ -138,12 +138,12 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
             const response = await axios.get(url, config);
             const trackingDetails = response.data;
             // console.log(trackingDetails, formDetails);
-            console.log('Before findOneAndUpdate:', formDetails, orderId);
+            // console.log('Before findOneAndUpdate:', formDetails, orderId);
             const trackDetails = await FormEntry.findOneAndUpdate(
                 { orderID: orderId },
                 { $set: { waybill: trackingDetails } }
             );
-            console.log('After findOneAndUpdate:', trackDetails);
+            // console.log('After findOneAndUpdate:', trackDetails);
             if (trackDetails) {
                 return trackingDetails;
             } else {
