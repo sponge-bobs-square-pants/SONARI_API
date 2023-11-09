@@ -282,12 +282,12 @@ const backendVerification = async (req, res) => {
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
                         // console.log(trackingDetails);
-                        return res.json({status: 'ok', trackingDetails, redirectUrl:url})
-                        // const redirectUrlWithTrackingId = `${url}?trackingId=${trackingDetails}`;
-                        // res.redirect(redirectUrlWithTrackingId);
+                        // return res.json({status: 'ok', trackingDetails, redirectUrl:url})
+                        const redirectUrlWithTrackingId = `${url}?trackingId=${trackingDetails}`;
+                        return res.redirect(redirectUrlWithTrackingId);
                         // return res.redirect(url, { trackingId: trackingDetails });
                         
-                        return res.redirect(url);
+                        // return res.redirect(url);
                     }else{
                         return res.status(500).json({ error: 'Failed to create shipment' });
                     }
