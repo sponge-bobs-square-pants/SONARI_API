@@ -52,13 +52,14 @@ const merchantaID = 'PGTESTPAYUAT'
 const getRazerPayController = async (req, res) => {
     console.log('hello motto');
     const {phone,orderID,email,address,pincode,state,city,amount,name, userId, transactionID} = req.body;
-    // const finalAmount = parseInt(amount, 10)
+    const finalAmount = parseInt(amount)
+    console.log(finalAmount);
     const data = {  
         "merchantId":`${merchantaID}`,
         "merchantTransactionId":transactionID,
         "merchantUserId":`${userId}`,
         "name":`${name}`,
-        "amount":amount,
+        "amount":finalAmount,
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
         "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
