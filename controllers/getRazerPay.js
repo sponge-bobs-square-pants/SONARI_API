@@ -252,7 +252,7 @@ const backendVerification = async (req, res) => {
    const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + key;
    const sha256 = crypto.createHash('sha256').update(string).digest('hex');
    const checksum = sha256 + "###" + keyIndex;
-   const maxRetries = 3;
+   const maxRetries = 4;
     let retries = 0;
     while(retries <maxRetries){
         try {
@@ -300,7 +300,7 @@ const backendVerification = async (req, res) => {
             if (error.response && error.response.status === 429) {
                 // Retry after a delay
                 retries++;
-                await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+                await new Promise(resolve => setTimeout(resolve, 3000)); // 2 second delay
             } else {
                 // Handle other errors
                 console.log(error);
