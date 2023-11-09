@@ -272,13 +272,13 @@ const backendVerification = async (req, res) => {
            if (response.data.success === true) {
                const url = 'https://sonarinightwear.netlify.app/OrderHistory';
                console.log('Hello world this is message after a successful transaction');
-               
+               console.log('here is starting of error');
                const result = await FormEntry.findOneAndUpdate(
                             {orderID:orderId},
                             {$set: {isPaymentSuccessful: true}}
                         );
                
-                // console.log('Before findOneAndUpdate:', result, orderId);
+                console.log('Before findOneAndUpdate:', result, orderId, 'fORM UPDATED!?');
                 if(result){
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
