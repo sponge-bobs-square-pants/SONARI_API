@@ -305,7 +305,7 @@ const backendVerification = async (req, res) => {
             if (error.response && error.response.status === 429) {
                 // Retry after a delay
                 retries++;
-                await new Promise(resolve => setTimeout(resolve, 3000)); // 2 second delay
+                await new Promise(resolve => setTimeout(resolve, 4000)); // 2 second delay
             } else {
                 // Handle other errors
                 console.log(error);
