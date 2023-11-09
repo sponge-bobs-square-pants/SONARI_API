@@ -283,11 +283,11 @@ const backendVerification = async (req, res) => {
                     if (trackingDetails){
                         // console.log(trackingDetails);
                         // return res.json({status: 'ok', trackingDetails, redirectUrl:url})
-                        const redirectUrlWithTrackingId = `${url}?trackingId=${trackingDetails}`;
-                        return res.redirect(redirectUrlWithTrackingId);
+                        // const redirectUrlWithTrackingId = `${url}?trackingId=${trackingDetails}`;
+                        // return res.redirect(redirectUrlWithTrackingId);
                         // return res.redirect(url, { trackingId: trackingDetails });
                         
-                        // return res.redirect(url);
+                        return res.redirect(url);
                     }else{
                         return res.status(500).json({ error: 'Failed to create shipment' });
                     }
