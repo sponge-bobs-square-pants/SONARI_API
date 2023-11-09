@@ -280,8 +280,9 @@ const backendVerification = async (req, res) => {
                 if(result){
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
-                        return res.json({status: 'ok', trackingDetails, redirectURL:url})
-                        // return res.redirect(url);
+                        // return res.json({status: 'ok', trackingDetails, redirectURL:url})
+                        console.log(trackingDetails);
+                        return res.redirect(url);
                     }else{
                         return res.status(500).json({ error: 'Failed to create shipment' });
                     }
