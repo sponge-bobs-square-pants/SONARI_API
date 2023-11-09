@@ -283,7 +283,7 @@ const backendVerification = async (req, res) => {
                     if (trackingDetails){
                         console.log(trackingDetails);
                         // return res.json({status: 'ok', trackingDetails, redirectUrl:url})
-                        res.redirect(url, { trackingId: trackingDetails });
+                        return res.redirect(url, { trackingId: trackingDetails });
                         
                         // return res.redirect(url);
                     }else{
