@@ -282,7 +282,8 @@ const backendVerification = async (req, res) => {
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
                         console.log(trackingDetails);
-                        return res.json({status: 'ok', trackingDetails}).redirect(url)
+                        // return res.json({status: 'ok', trackingDetails, redirectUrl:url})
+                        res.redirect(url, { trackingId: trackingDetails });
                         
                         // return res.redirect(url);
                     }else{
@@ -312,57 +313,6 @@ const backendVerification = async (req, res) => {
     }
     return res.status(500).json({ error: 'Max retries reached, unable to process the request' });
    
-//    axios.request(options).then(async(response) => {
-//     console.log(response.data.success);
-//     if(response.data.success === true){
-//         const url = `https://sonarinightwear.netlify.app/Products`
-//         console.log('Hello world this is message after a succesfull transaction');
-//         return res.redirect(url)
-//     }
-//     else{
-//         const url = `https://sonarinightwear.netlify.app/HomePage`
-//         return res.redirect(url)
-//     }
-//    }).catch((error) => {
-//     console.log(error);
-//    })
-    // const SECRET = process.env.RAZOR_BACKEND_SECRET
-    // const {payload} = req.body
-    // // console.log(payload.payment.entity.order_id, payload.payment.entity.contact);
-    // // const contact = payload.payment.entity.contact;
-    // const orderId = payload.payment.entity.order_id;
- 
-    // const shasum = crypto.createHmac('sha256', SECRET)
-    // shasum.update(JSON.stringify(req.body))
-    // const digest = shasum.digest('hex')
-
-    // if(digest === req.headers['x-razorpay-signature']){
-    //     // console.log('request is legit.do your shit here');
-    //     try {
-    //         const result = await FormEntry.findOneAndUpdate(
-    //             {orderID:orderId},
-    //             {$set: {isPaymentSuccessful: true}}
-    //         );
- 
-    //         if(result){
-    //             const trackingDetails = await createDelhiveryShipment(result, orderId);
-    //             if (trackingDetails){
-    //                 return res.json({status: 'ok', trackingDetails})
-    //             }else{
-    //                 return res.status(500).json({ error: 'Failed to create shipment' });
-    //             }
-               
-    //         }else{
-    //             return res.status(404).json({error: 'Document not found'})
-    //         }
-    //     } catch (error) {
-    //         return res.status(500).json({error: 'An error occurred while updating'})
-    //     }
-        
-    // }else{
-    //     res.status(400).json({msg: 'u are messing with the wrong person'})
-    // }
-    
 }
 
 module.exports = {
