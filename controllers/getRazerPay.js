@@ -138,10 +138,12 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
             const response = await axios.get(url, config);
             const trackingDetails = response.data;
             // console.log(trackingDetails, formDetails);
+            console.log('Before findOneAndUpdate:', formDetails, orderId);
             const trackDetails = await FormEntry.findOneAndUpdate(
                 { orderID: orderId },
                 { $set: { waybill: trackingDetails } }
             );
+            console.log('After findOneAndUpdate:', trackDetails);
             if (trackDetails) {
                 return trackingDetails;
             } else {
@@ -270,12 +272,13 @@ const backendVerification = async (req, res) => {
            if (response.data.success === true) {
                const url = 'https://sonarinightwear.netlify.app/OrderHistory';
                console.log('Hello world this is message after a successful transaction');
-               console.log('Before findOneAndUpdate:', formDetails, orderId);
+               
                const result = await FormEntry.findOneAndUpdate(
                             {orderID:orderId},
                             {$set: {isPaymentSuccessful: true}}
                         );
-                console.log('After findOneAndUpdate:', trackDetails);
+               
+                // console.log('Before findOneAndUpdate:', result, orderId);
                 if(result){
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
