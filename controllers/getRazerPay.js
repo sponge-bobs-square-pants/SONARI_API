@@ -278,7 +278,14 @@ const backendVerification = async (req, res) => {
                             {$set: {isPaymentSuccessful: true}}
                         );
                 if(result){
-                    return res.redirect(url);
+                    const trackingDetails = await createDelhiveryShipment(result, orderId);
+                    if (trackingDetails){
+                        return res.json({status: 'ok', trackingDetails, redirectUrl:url})
+                        // return res.redirect(url);
+                    }else{
+                        return res.status(500).json({ error: 'Failed to create shipment' });
+                    }
+                    
                 }
                 else{
                     return res.status(500).json({ error: 'Error Updating the Form.' });
