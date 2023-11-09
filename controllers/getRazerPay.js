@@ -45,7 +45,10 @@ const getRazerPayDataController = async (req, res) => {
 //     return transactionID
 // }
 // const transactionID = generateTransactionID();
-const merchantaID=`${process.env.PHONE_PE_MERCHANT_ID}`
+
+
+// const merchantaID=`${process.env.PHONE_PE_MERCHANT_ID}`
+const merchantaID = 'PGTESTPAYUAT'
 const getRazerPayController = async (req, res) => {
     console.log('hello motto');
     const {phone,orderID,email,address,pincode,state,city,amount,name, userId, transactionID} = req.body;
@@ -58,9 +61,9 @@ const getRazerPayController = async (req, res) => {
         "amount":finalAmount,
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
-        "redirectUrl": `https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        "redirectUrl": `https://bfdd-185-213-83-20.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
         "redirectMode": "POST",
-        "callbackUrl": "http://localhost:8888/products",
+        "callbackUrl": "http://localhost:8888/Products",
         // "message":`payment for order ${orderID}`,
         // "email":`${email}`,
         "paymentInstrument": {
@@ -70,13 +73,27 @@ const getRazerPayController = async (req, res) => {
      const payload = JSON.stringify(data)
      const payloadMain = Buffer.from(payload).toString('base64');
     //  const key = `${process.env.PHONE_PE_KEY}`;
+        const key = '099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'
      const keyIndex = 1;
      const string = payloadMain + '/pg/v1/pay' + key;
      const sha256 = crypto.createHash('sha256').update(string).digest('hex');
      const checksum = sha256 + '###' + keyIndex
-     
+     const config = {
+        headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+            'X-VERIFY': checksum
+        }
+     }
 
-     const URL = 'https://api.phonepe.com/apis/hermes/pg/v1/pay'
+    // try {
+    //     const response = await axios.post('https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay', payloadMain, config)
+    //     return res.status(200).send(response.data.data.instrumentResponse.redirectInfo.url)
+    // } catch (error) {
+    //     console.log(error);
+    // }
+     
+     const URL = 'https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay'
      const options ={
         method: 'POST',
         url: URL,
@@ -222,10 +239,11 @@ const backendVerification = async (req, res) => {
 //    console.log(merchantTransactionId, merchantId,);
    const keyIndex = 1;
 //    const key = `${process.env.PHONE_PE_KEY}`;
+    const key ='099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'
    const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + key;
    const sha256 = crypto.createHash('sha256').update(string).digest('hex');
    const checksum = sha256 + "###" + keyIndex;
-   const URL = `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`
+   const URL = `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`
    const options ={
     method:'GET',
     url:URL,
@@ -238,7 +256,16 @@ const backendVerification = async (req, res) => {
     
    }
    axios.request(options).then(async(response) => {
-    console.log(response.data);
+    console.log(response.data.success);
+    if(response.data.success === true){
+        const url = `http://localhost:8888/Products`
+        console.log('Hello world this is message after a succesfull transaction');
+        return res.redirect(url)
+    }
+    else{
+        const url = `http://localhost:8888/HomePage`
+        return res.redirect(url)
+    }
    }).catch((error) => {
     console.log(error);
    })
