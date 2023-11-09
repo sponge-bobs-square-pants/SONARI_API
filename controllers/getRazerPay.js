@@ -242,6 +242,7 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
 const backendVerification = async (req, res) => {
     // console.log('hello motto 2');
     // console.log(req.query, 'This is what u want');
+    console.log(res.req.body, 'Lets see this');
    const merchantTransactionId=req.query.transactionId;
     const orderId=req.query.merchantOrderId;
    const merchantId=req.query.merchantId;
