@@ -240,20 +240,16 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
 
 
 const backendVerification = async (req, res) => {
-    // console.log('hello motto 2');
-    // console.log(req.query, 'This is what u want');
-    // console.log(res.req.body, 'Lets see this');
    const merchantTransactionId=req.query.transactionId;
     const orderId=req.query.merchantOrderId;
    const merchantId=req.query.merchantId;
-//    console.log(merchantTransactionId, merchantId,);
    const keyIndex = 1;
 //    const key = `${process.env.PHONE_PE_KEY}`;
     const key ='099eb0cd-02cf-4e2a-8aca-3e6c6aff0399'
    const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + key;
    const sha256 = crypto.createHash('sha256').update(string).digest('hex');
    const checksum = sha256 + "###" + keyIndex;
-   const maxRetries = 4;
+   const maxRetries = 10;
     let retries = 0;
     while(retries <maxRetries){
         try {
@@ -281,11 +277,7 @@ const backendVerification = async (req, res) => {
                 if(result){
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
-                        // console.log(trackingDetails);
-                        // return res.json({status: 'ok', trackingDetails, redirectUrl:url})
-                        // const redirectUrlWithTrackingId = `${url}?trackingId=${trackingDetails}`;
-                        // return res.redirect(redirectUrlWithTrackingId);
-                        // return res.redirect(url, { trackingId: trackingDetails });
+
                         
                         return res.redirect(url);
                     }else{
