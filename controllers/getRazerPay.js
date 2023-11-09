@@ -26,7 +26,6 @@ const getRazerPayDataController = async (req, res) => {
         const totalAmounts = await Promise.all(productRequests);
         totalAmount = totalAmounts.reduce((acc, itemTotalAmount) => acc + itemTotalAmount, 0);
         totalAmount = (totalAmount * 9 / 10);
-        // razorpayTotalAmount = totalAmount;
         res.json({
             amount:`${totalAmount}`,
             order_id:`order_id_${shortid.generate()}`
@@ -53,13 +52,13 @@ const merchantaID = 'PGTESTPAYUAT'
 const getRazerPayController = async (req, res) => {
     console.log('hello motto');
     const {phone,orderID,email,address,pincode,state,city,amount,name, userId, transactionID} = req.body;
-    const finalAmount = parseInt(amount, 10)
+    // const finalAmount = parseInt(amount, 10)
     const data = {  
         "merchantId":`${merchantaID}`,
         "merchantTransactionId":transactionID,
         "merchantUserId":`${userId}`,
         "name":`${name}`,
-        "amount":finalAmount,
+        "amount":amount,
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
         "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
