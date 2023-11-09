@@ -282,7 +282,7 @@ const backendVerification = async (req, res) => {
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
                         console.log(trackingDetails);
-                        return res.json({status: 'ok', trackingDetails, redirectUrl:url})
+                        return res.json({status: 'ok', trackingDetails}).redirect(url)
                         
                         // return res.redirect(url);
                     }else{
