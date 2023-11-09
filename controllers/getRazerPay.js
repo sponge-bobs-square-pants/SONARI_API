@@ -62,7 +62,7 @@ const getRazerPayController = async (req, res) => {
         "amount":finalAmount,
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
-        "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}&merchantOrderId=${orderID}`,
         // "redirectUrl": `https://0676-194-61-40-52.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
         "redirectMode": "POST",
         "callbackUrl": "https://sonarinightwear.netlify.app/Products",
@@ -243,7 +243,7 @@ const backendVerification = async (req, res) => {
     // console.log('hello motto 2');
     // console.log(req.query, 'This is what u want');
    const merchantTransactionId=req.query.transactionId;
-
+    const orderId=req.query.merchantOrderId;
    const merchantId=req.query.merchantId;
 //    console.log(merchantTransactionId, merchantId,);
    const keyIndex = 1;
@@ -273,7 +273,16 @@ const backendVerification = async (req, res) => {
            if (response.data.success === true) {
                const url = 'https://sonarinightwear.netlify.app/OrderHistory';
                console.log('Hello world this is message after a successful transaction');
-               return res.redirect(url);
+               const result = await FormEntry.findOneAndUpdate(
+                            {orderID:orderId},
+                            {$set: {isPaymentSuccessful: true}}
+                        );
+                if(result){
+                    return res.redirect(url);
+                }
+                else{
+                    return res.status(500).json({ error: 'Error Updating the Form.' });
+                }
            } else {
                const url = 'https://sonarinightwear.netlify.app/HomePage';
                return res.redirect(url);
