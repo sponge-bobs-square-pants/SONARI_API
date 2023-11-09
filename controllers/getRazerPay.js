@@ -20,11 +20,12 @@ const getRazerPayDataController = async (req, res) => {
             const productData = productResponse.data;
             // console.log(item.amount, productData.product.Price);
             let itemTotalAmount = item.amount * productData.product.Price;
-            totalAmount += itemTotalAmount
+            totalAmount += itemTotalAmount;  
             return itemTotalAmount;
         });
         const totalAmounts = await Promise.all(productRequests);
         totalAmount = totalAmounts.reduce((acc, itemTotalAmount) => acc + itemTotalAmount, 0);
+        totalAmount = (totalAmount * 9 / 10);
         // razorpayTotalAmount = totalAmount;
         res.json({
             amount:`${totalAmount}`,
