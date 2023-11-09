@@ -25,7 +25,7 @@ const getRazerPayDataController = async (req, res) => {
         });
         const totalAmounts = await Promise.all(productRequests);
         totalAmount = totalAmounts.reduce((acc, itemTotalAmount) => acc + itemTotalAmount, 0);
-        totalAmount = (totalAmount * 9 / 10);
+        // totalAmount = (totalAmount * 9 / 10);
         res.json({
             amount:`${totalAmount}`,
             order_id:`order_id_${shortid.generate()}`
