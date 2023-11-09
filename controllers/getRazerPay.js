@@ -61,9 +61,10 @@ const getRazerPayController = async (req, res) => {
         "amount":finalAmount,
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
-        "redirectUrl": `https://bfdd-185-213-83-20.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        // "redirectUrl": `https://bfdd-185-213-83-20.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
         "redirectMode": "POST",
-        "callbackUrl": "http://localhost:8888/Products",
+        "callbackUrl": "https://sonarinightwear.netlify.app/Products",
         // "message":`payment for order ${orderID}`,
         // "email":`${email}`,
         "paymentInstrument": {
@@ -258,12 +259,12 @@ const backendVerification = async (req, res) => {
    axios.request(options).then(async(response) => {
     console.log(response.data.success);
     if(response.data.success === true){
-        const url = `http://localhost:8888/Products`
+        const url = `https://sonarinightwear.netlify.app/Products`
         console.log('Hello world this is message after a succesfull transaction');
         return res.redirect(url)
     }
     else{
-        const url = `http://localhost:8888/HomePage`
+        const url = `https://sonarinightwear.netlify.app/HomePage`
         return res.redirect(url)
     }
    }).catch((error) => {
