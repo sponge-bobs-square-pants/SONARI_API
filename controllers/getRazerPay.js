@@ -62,7 +62,7 @@ const getRazerPayController = async (req, res) => {
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
         "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
-        // "redirectUrl": `https://bfdd-185-213-83-20.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        // "redirectUrl": `https://0676-194-61-40-52.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
         "redirectMode": "POST",
         "callbackUrl": "https://sonarinightwear.netlify.app/Products",
         // "message":`payment for order ${orderID}`,
@@ -107,12 +107,19 @@ const getRazerPayController = async (req, res) => {
             request:payloadMain
         }
      };
-     axios.request(options).then(function(response){
+     try {
+        const response = await axios(options);
         // console.log(response.data);
-        return res.status(200).send(response.data.data.instrumentResponse.redirectInfo.url)
-     }).catch(function(error){
+        return res.status(200).send(response.data.data.instrumentResponse.redirectInfo.url);
+      } catch (error) {
         console.log(error);
-     })
+      }
+    //  axios.request(options).then(function(response){
+    //     // console.log(response.data);
+    //     return res.status(200).send(response.data.data.instrumentResponse.redirectInfo.url)
+    //  }).catch(function(error){
+    //     console.log(error);
+    //  })
 }
 
 const createDelhiveryShipment = async (formDetails, orderId) => {
@@ -244,32 +251,61 @@ const backendVerification = async (req, res) => {
    const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + key;
    const sha256 = crypto.createHash('sha256').update(string).digest('hex');
    const checksum = sha256 + "###" + keyIndex;
-   const URL = `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`
-   const options ={
-    method:'GET',
-    url:URL,
-    headers:{
-        accept: 'application/json',
-        'Content-Type':'application/json',
-        'X-VERIFY':checksum,
-        'X-MERCHANT-ID': `${merchantId}`
+   const maxRetries = 3;
+    let retries = 0;
+    while(retries <maxRetries){
+        try {
+            const URL = `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`
+           const options ={
+            method:'GET',
+            url:URL,
+            headers:{
+                accept: 'application/json',
+                'Content-Type':'application/json',
+                'X-VERIFY':checksum,
+                'X-MERCHANT-ID': `${merchantId}`
+            }
+           }
+           const response = await axios(options);
+           console.log(response.data.success);
+        
+           if (response.data.success === true) {
+               const url = 'https://sonarinightwear.netlify.app/OrderHistory';
+               console.log('Hello world this is message after a successful transaction');
+               return res.redirect(url);
+           } else {
+               const url = 'https://sonarinightwear.netlify.app/HomePage';
+               return res.redirect(url);
+           }
+           } catch (error) {
+            
+            if (error.response && error.response.status === 429) {
+                // Retry after a delay
+                retries++;
+                await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+            } else {
+                // Handle other errors
+                console.log(error);
+                break;
+            }
+           }
     }
-    
-   }
-   axios.request(options).then(async(response) => {
-    console.log(response.data.success);
-    if(response.data.success === true){
-        const url = `https://sonarinightwear.netlify.app/Products`
-        console.log('Hello world this is message after a succesfull transaction');
-        return res.redirect(url)
-    }
-    else{
-        const url = `https://sonarinightwear.netlify.app/HomePage`
-        return res.redirect(url)
-    }
-   }).catch((error) => {
-    console.log(error);
-   })
+    return res.status(500).json({ error: 'Max retries reached, unable to process the request' });
+   
+//    axios.request(options).then(async(response) => {
+//     console.log(response.data.success);
+//     if(response.data.success === true){
+//         const url = `https://sonarinightwear.netlify.app/Products`
+//         console.log('Hello world this is message after a succesfull transaction');
+//         return res.redirect(url)
+//     }
+//     else{
+//         const url = `https://sonarinightwear.netlify.app/HomePage`
+//         return res.redirect(url)
+//     }
+//    }).catch((error) => {
+//     console.log(error);
+//    })
     // const SECRET = process.env.RAZOR_BACKEND_SECRET
     // const {payload} = req.body
     // // console.log(payload.payment.entity.order_id, payload.payment.entity.contact);
