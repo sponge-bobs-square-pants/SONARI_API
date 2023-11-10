@@ -50,10 +50,10 @@ const getRazerPayDataController = async (req, res) => {
 // const merchantaID=`${process.env.PHONE_PE_MERCHANT_ID}`
 const merchantaID = 'PGTESTPAYUAT'
 const getRazerPayController = async (req, res) => {
-    console.log('hello motto');
+    // console.log('hello motto');
     const {phone,orderID,email,address,pincode,state,city,amount,name, userId, transactionID} = req.body;
     const finalAmount = parseInt(amount)
-    console.log(finalAmount);
+    // console.log(finalAmount);
     const data = {  
         "merchantId":`${merchantaID}`,
         "merchantTransactionId":transactionID,
@@ -113,7 +113,8 @@ const getRazerPayController = async (req, res) => {
         // console.log(response.data);
         return res.status(200).send(response.data.data.instrumentResponse.redirectInfo.url);
       } catch (error) {
-        console.log(error);
+        throw error;
+        // console.log(error);
       }
     //  axios.request(options).then(function(response){
     //     // console.log(response.data);
@@ -218,7 +219,7 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
           try {
             const response = await axios.post(url, formData, { headers });
             return response.data
-            console.log('Response:', response.data);
+            // console.log('Response:', response.data);
             return response.data
           } catch (error) {
             console.error('Error:', error);
@@ -229,9 +230,9 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
 
     try {
         const trackingDetails = await fetchWayBills();
-        console.log(trackingDetails);
+        // console.log(trackingDetails);
         const createShipmentData = await createShipment(trackingDetails);
-        console.log(createShipmentData);
+        // console.log(createShipmentData);
         return trackingDetails;
     } catch (error) {
         // Handle the error and return an appropriate response
@@ -267,18 +268,18 @@ const backendVerification = async (req, res) => {
             }
            }
            const response = await axios(options);
-           console.log(response.data.success);
+        //    console.log(response.data.success);
         
            if (response.data.success === true) {
                const url = 'https://sonarinightwear.netlify.app/OrderHistory';
-               console.log('Hello world this is message after a successful transaction');
-               console.log('here is starting of error');
+            //    console.log('Hello world this is message after a successful transaction');
+            //    console.log('here is starting of error');
                const result = await FormEntry.findOneAndUpdate(
                             {orderID:orderId},
                             {$set: {isPaymentSuccessful: true}}
                         );
                
-                console.log('Before findOneAndUpdate:', result, orderId, 'fORM UPDATED!?');
+                // console.log('Before findOneAndUpdate:', result, orderId, 'fORM UPDATED!?');
                 if(result){
                     const trackingDetails = await createDelhiveryShipment(result, orderId);
                     if (trackingDetails){
