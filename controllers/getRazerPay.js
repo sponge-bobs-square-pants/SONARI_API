@@ -241,6 +241,7 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
 
 }
 
+const exponentialBackoff = (retryCount) => Math.pow(2, retryCount) * 1000;
 
 const backendVerification = async (req, res) => {
    const merchantTransactionId=req.query.transactionId;
@@ -300,13 +301,24 @@ const backendVerification = async (req, res) => {
            }
            } catch (error) {
             
-            if (error.response && error.response.status === 429) {
-                // Retry after a delay
-                retries++;
-                await new Promise(resolve => setTimeout(resolve, 4000)); // 2 second delay
-            } else {
+            if (error.response) {
+                if(error.response.status === 429) {
+                    // Retry after a delay
+                    retries++;
+                    const delay = exponentialBackoff(retries);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+    
+                    // await new Promise(resolve => setTimeout(resolve, 4000)); // 2 second delay
+                }
+                else{
+                    console.error('Error with PhonePe API:', error);
+                    break;
+                }
+            }
+             else {
                 // Handle other errors
-                console.log(error);
+                // console.log(error);
+                console.error('Non-response error with PhonePe API:', error);
                 break;
             }
            }
