@@ -23,12 +23,12 @@
 
     app.use(express.json());
     app.use(cors());
-    app.use((req, res, next) => {
-        res.header('Access-Control-Allow-Origin', '*'); // Replace '*' with the actual origin of your application
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        next();
-    });
+    // app.use((req, res, next) => {
+    //     res.header('Access-Control-Allow-Origin', '*'); // Replace '*' with the actual origin of your application
+    //     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    //     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    //     next();
+    // });
     app.get('/', (req, res) => {
         res.send(`<h1>Store API</h1><a href='/api/v1/products'>products route</a>`);
     })
@@ -36,13 +36,10 @@
     app.use('/api/v1/products', productsRouter)
     // app.use('/api/v1/razorpayRouter', razorpayRouter)
     app.use('/api/v1/razorpaydata', razorPayDataRouter)
-
     app.use('/api/v1/razorpay', razorRouter)
-
     app.use('/api/v1/submitForm',formAuthMiddleware, formEntryRouter);
-
     app.use('/api/v1/verification', backendPaymentVerification)
-    app.use('/api/v1/Order', OrderRouter)
+    app.use('/api/v1/Order',formAuthMiddleware, OrderRouter)
 
 
     app.get('/api/v1/OrderAdmin', formAuthMiddleware, async (req, res) => {
