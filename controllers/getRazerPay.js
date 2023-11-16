@@ -247,6 +247,7 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
         // return { trackingDetails, createShipmentData, createPickupData };
         console.log(trackingDetails, createShipmentData, createPickupData);
         // console.log(createShipmentData);
+        
         return trackingDetails;
     } catch (error) {
         // Handle the error and return an appropriate response
