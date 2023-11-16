@@ -53,6 +53,7 @@ const getRazerPayController = async (req, res) => {
     // console.log('hello motto');
     const {phone,orderID,email,address,pincode,state,city,amount,name, userId, transactionID, cart} = req.body;
     const finalAmount = parseInt(amount)
+    console.log(cart);
     // console.log(finalAmount);
     const data = {  
         "merchantId":`${merchantaID}`,
@@ -62,7 +63,7 @@ const getRazerPayController = async (req, res) => {
         "amount":finalAmount,
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
-        "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}&merchantOrderId=${orderID}&cart=${cart}`,
+        "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}&merchantOrderId=${orderID}`,
         // "redirectUrl": `https://0676-194-61-40-52.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
         "redirectMode": "POST",
         "callbackUrl": "https://sonarinightwear.netlify.app/Products",
@@ -232,8 +233,8 @@ const exponentialBackoff = (retryCount) => Math.pow(2, retryCount) * 1000;
 const backendVerification = async (req, res) => {
    const merchantTransactionId=req.query.transactionId;
     const orderId=req.query.merchantOrderId;
-    const cart = req.query.cart
-    console.log(cart);
+    // const cart = req.query.cart
+    // console.log(cart);
    const merchantId=req.query.merchantId;
    const keyIndex = 1;
 //    const key = `${process.env.PHONE_PE_KEY}`;
