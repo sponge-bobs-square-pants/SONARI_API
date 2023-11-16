@@ -111,7 +111,7 @@ const getRazerPayController = async (req, res) => {
       }
 }
 
-const createDelhiveryShipment = async (formDetails, orderId) => {
+const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
     
     const fetchWayBills = async () => {
         const url = `https://staging-express.delhivery.com/waybill/api/bulk/json/?count=1`;
@@ -180,7 +180,7 @@ const createDelhiveryShipment = async (formDetails, orderId) => {
                 "waybill": `${trackingDetails}`,
                 "shipment_width": "",
                 "shipment_height": "",
-                "weight": "500",
+                "weight": `${300 * cartItemCount}`,
                 "seller_gst_tin": "24AHZPC4690G1Z0",
                 "shipping_mode": "Surface",
                 "address_type": "home"
@@ -234,7 +234,7 @@ const backendVerification = async (req, res) => {
    const merchantTransactionId=req.query.transactionId;
     const orderId=req.query.merchantOrderId;
     const cartItemCount = req.query.cartItemCount
-    console.log(cartItemCount);
+    // console.log(cartItemCount);
    const merchantId=req.query.merchantId;
    const keyIndex = 1;
 //    const key = `${process.env.PHONE_PE_KEY}`;
@@ -271,7 +271,7 @@ const backendVerification = async (req, res) => {
                
                 // console.log('Before findOneAndUpdate:', result, orderId, 'fORM UPDATED!?');
                 if(result){
-                    const trackingDetails = await createDelhiveryShipment(result, orderId);
+                    const trackingDetails = await createDelhiveryShipment(result, orderId, cartItemCount);
                     if (trackingDetails){
 
                         
