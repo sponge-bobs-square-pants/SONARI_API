@@ -244,7 +244,8 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
         // console.log(trackingDetails);
         const createShipmentData = await createShipment(trackingDetails);
         const createPickupData = await createPickup();
-        return { trackingDetails, createShipmentData, createPickupData };
+        // return { trackingDetails, createShipmentData, createPickupData };
+        console.log(trackingDetails, createShipmentData, createPickupData);
         // console.log(createShipmentData);
         return trackingDetails;
     } catch (error) {
