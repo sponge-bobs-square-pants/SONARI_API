@@ -213,12 +213,38 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
 
           }
     }
+    const createPickup = async () => {
+        const url = 'https://staging-express.delhivery.com/fm/request/new/';
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
+            }
+        }
+        const tomorrowDate = moment().add(1, 'day').format('YYYY-MM-DD');
+        const data = {
+            pickup_location: 'KRISHNA SURFACE',
+            expected_package_count: '1',
+            pickup_date: `${tomorrowDate}`,
+            pickup_time: '13:20:00'
+          };
+          try {
+            const response = await axios.post(url, data, config);
+            return response.data
+          } catch (error) {
+            console.error('Error:', error.message);
+            throw error;
+          }
+    }
 
 
     try {
         const trackingDetails = await fetchWayBills();
         // console.log(trackingDetails);
         const createShipmentData = await createShipment(trackingDetails);
+        const createPickupData = await createPickup();
+        return { trackingDetails, createShipmentData, createPickupData };
         // console.log(createShipmentData);
         return trackingDetails;
     } catch (error) {
