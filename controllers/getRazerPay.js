@@ -231,11 +231,11 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
         // console.log(tomorrowDate);
         const data = {
             pickup_location: 'KRISHNA SURFACE',
-            expected_package_count: '1',
+            expected_package_count: 1,
             pickup_date: `${tomorrowDate}`,
             pickup_time: '13:20:00'
           };
-          console.log('after data');
+        //   console.log('after data');
           try {
             const response = await axios.post(url, data, config);
             // console.log('Response of Pickup Details: ', response.data);
