@@ -8,6 +8,7 @@ const razorpay = new Razorpay({ key_id:process.env.RAZOR_PAY_ID, key_secret:proc
 const crypto = require('crypto')
 const FormEntry = require('../FormEntry');
 const QueryString = require('qs');
+const moment = require('moment');
 let razorpayTotalAmount = 0;
 
 const getRazerPayDataController = async (req, res) => {
@@ -64,7 +65,7 @@ const getRazerPayController = async (req, res) => {
         "merchantOrderId":`${orderID}`,
         "mobileNumber":`${phone}`,
         "redirectUrl":`https://sonari-api.onrender.com/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}&merchantOrderId=${orderID}&cartItemCount=${cartItemCount}`,
-        // "redirectUrl": `https://0676-194-61-40-52.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}`,
+        // "redirectUrl": ` https://421b-45-86-202-54.ngrok.io/api/v1/verification?merchantId=${merchantaID}&transcationId=${transactionID}&merchantOrderId=${orderID}&cartItemCount=${cartItemCount}`,
         "redirectMode": "POST",
         "callbackUrl": "https://sonarinightwear.netlify.app/Products",
         // "message":`payment for order ${orderID}`,
@@ -133,6 +134,7 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
             );
             // console.log('After findOneAndUpdate:', trackDetails);
             if (trackDetails) {
+                // console.log('Response of Waybill Creation: ', response.data);
                 return trackingDetails;
             } else {
                 // Handle the case where the document is not found
@@ -205,16 +207,18 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
 
           try {
             const response = await axios.post(url, formData, { headers });
+            // console.log('Response of Create Shipping:', response.data);
             return response.data
-            // console.log('Response:', response.data);
-            return response.data
+
           } catch (error) {
             console.error('Error:', error);
 
           }
     }
     const createPickup = async () => {
+        // console.log('Create shipment being called');
         const url = 'https://staging-express.delhivery.com/fm/request/new/';
+        // console.log('After url');
         const config = {
             headers: {
                 'Content-Type': 'application/json',
@@ -222,16 +226,20 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
                 'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
             }
         }
+        // console.log('after headers');
         const tomorrowDate = moment().add(1, 'day').format('YYYY-MM-DD');
+        // console.log(tomorrowDate);
         const data = {
             pickup_location: 'KRISHNA SURFACE',
             expected_package_count: '1',
             pickup_date: `${tomorrowDate}`,
             pickup_time: '13:20:00'
           };
+          console.log('after data');
           try {
             const response = await axios.post(url, data, config);
-            return response.data
+            // console.log('Response of Pickup Details: ', response.data);
+            return response.data.data
           } catch (error) {
             console.error('Error:', error.message);
             throw error;
@@ -243,11 +251,13 @@ const createDelhiveryShipment = async (formDetails, orderId, cartItemCount) => {
         const trackingDetails = await fetchWayBills();
         // console.log(trackingDetails);
         const createShipmentData = await createShipment(trackingDetails);
+        // console.log('Response of Create Shipping:', response.data);
         const createPickupData = await createPickup();
+        // console.log(createPickupData);
         // return { trackingDetails, createShipmentData, createPickupData };
         console.log(trackingDetails, createShipmentData, createPickupData);
         // console.log(createShipmentData);
-        
+
         return trackingDetails;
     } catch (error) {
         // Handle the error and return an appropriate response
