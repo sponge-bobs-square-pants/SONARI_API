@@ -63,8 +63,17 @@ const OrderController = async (req, res) => {
     const FormEntry = require('../FormEntry');
     const id = req.query.id
     const product = await FormEntry.find({userId: id})
-    const cartArray = product.filter(product => product.isPaymentSuccessful === true).map(product => product.cart);
-    return res.json({cartArray})
+    // console.log(product);
+    // const waybill = product.filter(product => product.isPaymentSuccessful === true).map(product => product.waybill)
+    // const cartArray = product.filter(product => product.isPaymentSuccessful === true).map(product => product.cart);
+    const cartArray = product.filter(product => product.isPaymentSuccessful === true);
+    const orderDetails = cartArray.map((product) => ({
+        order: product.cart,
+        waybill:product.waybill
+    }));
+    // console.log(orderDetails);
+    // console.log(waybill.length, cartArray.length);
+    return res.json({orders: orderDetails})
 }
     
 

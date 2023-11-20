@@ -23,12 +23,6 @@
 
     app.use(express.json());
     app.use(cors());
-    // app.use((req, res, next) => {
-    //     res.header('Access-Control-Allow-Origin', '*'); // Replace '*' with the actual origin of your application
-    //     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    //     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    //     next();
-    // });
     app.get('/', (req, res) => {
         res.send(`<h1>Store API</h1><a href='/api/v1/products'>products route</a>`);
     })
@@ -40,6 +34,24 @@
     app.use('/api/v1/submitForm',formAuthMiddleware, formEntryRouter);
     app.use('/api/v1/verification', backendPaymentVerification)
     app.use('/api/v1/Order',formAuthMiddleware, OrderRouter)
+    app.get('/api/v1/packages', async (req, res) => {
+        const waybill = '5077711173107'
+        const url =`https://staging-express.delhivery.com/api/v1/packages/json/?waybill=${waybill}`
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
+            }
+        }
+          try {
+            const response = await axios.get(url, config);
+            console.log(response);
+            res.status(200).json({msg: response})
+          } catch (error) {
+            res.status(400).json({msg: error})
+          }
+        // res.json({msg: waybills})
+    })
 
 
     app.get('/api/v1/OrderAdmin', formAuthMiddleware, async (req, res) => {
