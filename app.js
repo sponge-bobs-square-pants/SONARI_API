@@ -4,7 +4,7 @@
     const express = require('express');
     const cors = require('cors');
     const app = express();
-
+    const axios = require('axios')
     const notFoundMiddleware = require('./middleware/not-found');
     const errorMiddleware = require('./middleware/error-handler');
     const connectDB = require('./db/connect');
@@ -35,7 +35,8 @@
     app.use('/api/v1/verification', backendPaymentVerification)
     app.use('/api/v1/Order',formAuthMiddleware, OrderRouter)
     app.get('/api/v1/packages', async (req, res) => {
-        const waybill = '5077711173107'
+        const waybill = req.query.waybills
+        // console.log(waybill);
         const url =`https://staging-express.delhivery.com/api/v1/packages/json/?waybill=${waybill}`
         const config = {
             headers: {
@@ -43,13 +44,30 @@
                 'Authorization': `Token ${process.env.DELIVERY_TOKEN}`,
             }
         }
-          try {
+        try {
             const response = await axios.get(url, config);
-            console.log(response);
-            res.status(200).json({msg: response})
-          } catch (error) {
-            res.status(400).json({msg: error})
-          }
+            // console.log(response.data.ShipmentData);
+
+            const statusData = response.data.ShipmentData
+            if(statusData.length > 0){
+                const firstShipment = statusData[0];
+                // const Details = firstShipment?.Shipment?.Scans;
+                const status = firstShipment?.Shipment?.Status;
+                if (status) {
+                    res.status(200).json({Status: status})
+                    // console.log(Shipment);
+                } else {
+                    console.log('Status not found in the response');
+                }
+            
+            }else {
+                console.log('No shipment data in the response');
+              }
+            // console.log(status);
+           
+        } catch (error) {
+            console.log(error);
+        }
         // res.json({msg: waybills})
     })
 
