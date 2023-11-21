@@ -51,10 +51,12 @@
             const statusData = response.data.ShipmentData
             if(statusData.length > 0){
                 const firstShipment = statusData[0];
-                // const Details = firstShipment?.Shipment?.Scans;
+                const Details = firstShipment?.Shipment?.Scans;
                 const status = firstShipment?.Shipment?.Status;
                 if (status) {
-                    res.status(200).json({Status: status})
+                    const ScanDetails = Details.filter(scan => scan.ScanDetail.Scan === status.Status)
+                    // console.log(matchingScans);
+                    res.status(200).json({Status: status, Scans: ScanDetails})
                     // console.log(Shipment);
                 } else {
                     console.log('Status not found in the response');
